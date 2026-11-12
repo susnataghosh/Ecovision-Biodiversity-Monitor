@@ -1,0 +1,7 @@
+streamlit
+tensorflow
+tf_keras
+pillow
+pandas
+numpy
+plotly

@@ -1,0 +1,22 @@
+0 Indian Python
+1 Empty/Background
+2 Indian Cobra
+3 Rhesus Macaque
+4 Indian Pangolin
+5 Indian Giant Squirrel 
+6 Sambar Deer
+7 Chital
+8 Indian Peafowl
+9 Mugger Crocodile
+10 Indian Wolf
+11 Asian Elephant
+12 Bengal Tiger
+13 Indian Leopard 
+14 Sloth Bear
+15 Indian Rhinoceros 
+16 Indian Wild Boar
+17 Barn Owl
+18 Indian Eagle
+19 Male Himalayan Monal
+20 Golden Jackal
+21 Striped Hyena
