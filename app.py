@@ -107,7 +107,7 @@ with tab1:
                         st.markdown("### **Classification Results**")
                         if "blank" in species.lower():
                             st.error(f"**False Trigger Filtered:** {species} ({confidence*100:.1f}% Confidence)")
-                        elif confidence < 0.65:
+                        elif confidence < 0.75:
                             st.warning(f"⚠️ **Unidentified Species** (Highest match: {species} at {confidence*100:.1f}%)")
                         else:
                             st.success(f"**Detected Species:** {species}")
