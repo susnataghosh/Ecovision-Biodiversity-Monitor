@@ -35,7 +35,7 @@ def get_historical_data():
 
 df_history = get_historical_data()
 
-st.title("🐾 1EcoVision: Biodiversity Monitor")
+st.title("🐾 2EcoVision: Biodiversity Monitor")
 st.caption("EVS Project Solution — Automated Species Classification Pipeline")
 
 tab1, tab2 = st.tabs(["📸 AI Wildlife Classifier", "📊 Field Analytics Dashboard"])
@@ -73,20 +73,20 @@ with tab1:
                     drive_match = re.search(r"/d/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)", url_input)
                     if "://google.com" in url_input and drive_match:
                         file_id = drive_match.group(1) or drive_match.group(2)
-                        fetch_url = f"https://://google.com/thumbnail?id={file_id}&sz=w1000"
+                        fetch_url = f"https://googleusercontent.com{file_id}"
                     else:
                         fetch_url = url_input
 
-                    response = requests.get(fetch_url, timeout=10)
+                    headers = {"User-Agent": "Mozilla/5.0"}
+                    response = requests.get(fetch_url, headers=headers, timeout=10)
                     response.raise_for_status()
                     image = Image.open(io.BytesIO(response.content)).convert("RGB")
-                except Exception:
-                    st.error("❌ Could not load image. Make sure the Google Drive link access is set to 'Anyone with the link'.")
+                except Exception as e:
+                    st.error(f"❌ Could not load image ({e}). Try downloading the photo to your phone first and using 'Upload File'.")
         if image is not None:
             col1, col2 = st.columns(2)
             with col1:
-                st.image(image, caption="Uploaded Frame", use_container_width=True)
-            
+                st.image(image, caption="Uploaded Frame", use_container_width=True)   
             with col2:
                 if st.button("🔎 Classify Species", type="primary"):
                     with st.spinner("Running neural network inference..."):
