@@ -20,21 +20,19 @@ def load_tm_model():
         class_names = [line.strip().split(" ", 1)[1] for line in f.readlines() if line.strip()]
     return model, class_names
 
-@st.cache_data
-def get_historical_data():
+if "live_logs" not in st.session_state:
+    _, labels = load_tm_model()
     np.random.seed(42)
-    species_list = ['Indian Python', 'Indian Cobra', 'Indian Giant Squirrel', 'Mugger Crocodile', 'Blank (Wind/Leaves)']
     cameras = ['Zone A (River Bank)', 'Zone B (Deep Jungle)', 'Canopy Grid 4']
-    dates = [datetime(2026, 11, 1) + timedelta(days=int(np.random.randint(0, 14)), hours=int(np.random.randint(0, 24))) for _ in range(150)]
-    return pd.DataFrame({
-        'Timestamp': dates,
-        'Camera Deployment': np.random.choice(cameras, size=150),
-        'Species Detected': np.random.choice(species_list, size=150, p=[0.2, 0.2, 0.2, 0.2, 0.2]),
-        'Hour': [d.hour for d in dates]
+    dates = [datetime(2026, 11, 1) + timedelta(days=int(np.random.randint(0, 14)), hours=int(np.random.randint(0, 24))) for _ in range(25)]
+    st.session_state["live_logs"] = pd.DataFrame({
+        'Timestamp': [d.strftime("%Y-%m-%d %H:%M") for d in dates],
+        'Camera Deployment': np.random.choice(cameras, size=25),
+        'Species Detected': np.random.choice(labels, size=25),
+        'Confidence (%)': np.round(np.random.uniform(78.0, 99.5, size=25), 1),
+        'Hour': [d.hour for d in dates],
+        'Source': ['Baseline Field Log'] * 25
     })
-
-df_history = get_historical_data()
-
 st.title("🐾 EcoVision: Biodiversity Monitor")
 st.caption("EVS Project Solution — Automated Species Classification Pipeline")
 
@@ -103,7 +101,18 @@ with tab1:
                         species = class_names[index]
                         confidence = float(prediction[index])
                         assigned_cam = np.random.choice(['Zone A (River Bank)', 'Zone B (Deep Jungle)', 'Canopy Grid 4'])
-                        
+                        # Log live detection to Tab 2 dashboard
+                        now = datetime.now()
+                        logged_label = "Unidentified Species" if confidence < 0.65 and "empty" not in species.lower() and "background" not in species.lower() else species
+                        new_entry = pd.DataFrame([{
+                            'Timestamp': now.strftime("%Y-%m-%d %H:%M:%S"),
+                            'Camera Deployment': assigned_cam,
+                            'Species Detected': logged_label,
+                            'Confidence (%)': round(confidence * 100, 1),
+                            'Hour': now.hour,
+                            'Source': '🔴 Live Demo Upload'
+                        }])
+                        st.session_state["live_logs"] = pd.concat([new_entry, st.session_state["live_logs"]], ignore_index=True)
                         st.markdown("### **Classification Results**")
                         if "blank" in species.lower():
                             st.error(f"**False Trigger Filtered:** {species} ({confidence*100:.1f}% Confidence)")
@@ -118,9 +127,46 @@ with tab1:
                             st.progress(float(prediction[i]), text=f"{name}: {prediction[i]*100:.1f}%")
 
 with tab2:
-    st.markdown("### Aggregated Field Telemetry & Results")
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(px.pie(df_history, names='Species Detected', title="Species Abundance Layout"), use_container_width=True)
-    with col2:
-        st.plotly_chart(px.bar(df_history, x='Hour', color='Species Detected', title="Diurnal Activity Patterns (24hr)"), use_container_width=True)
+    st.markdown("### Real-Time Field Telemetry & Detection Log")
+    
+    df_all = st.session_state["live_logs"]
+    live_only = df_all[df_all['Source'] == '🔴 Live Demo Upload']
+    
+    # Top summary metrics
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Total Logged Detections", len(df_all))
+    m2.metric("Live Session Uploads", len(live_only))
+    m3.metric("Unique Species Found", df_all['Species Detected'].nunique())
+    
+    filter_choice = st.radio(
+        "Select Data View:",
+        ["📊 Combined Telemetry (Baseline + Live Uploads)", "🔴 Only My Live Uploads"],
+        horizontal=True
+    )
+    
+    df_display = live_only if filter_choice == "🔴 Only My Live Uploads" else df_all
+    
+    if len(df_display) == 0:
+        st.info("No live images classified yet! Go to Tab 1, upload a photo, and click 'Classify Species' to see it appear here.")
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.plotly_chart(
+                px.pie(df_display, names='Species Detected', title="Species Abundance Breakdown"),
+                use_container_width=True
+            )
+        with col2:
+            st.plotly_chart(
+                px.histogram(
+                    df_display,
+                    x='Hour',
+                    color='Species Detected',
+                    nbins=24,
+                    barmode='group',
+                    title="Activity Patterns by Hour (24hr)"
+                ),
+                use_container_width=True
+            )
+        
+        st.markdown("#### Recent Detection Logs")
+        st.dataframe(df_display[['Timestamp', 'Species Detected', 'Confidence (%)', 'Camera Deployment', 'Source']], use_container_width=True)
