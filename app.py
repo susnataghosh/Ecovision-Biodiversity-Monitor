@@ -35,7 +35,7 @@ def get_historical_data():
 
 df_history = get_historical_data()
 
-st.title("🐾 EcoVision: Biodiversity Monitor")
+st.title("🐾 1EcoVision: Biodiversity Monitor")
 st.caption("EVS Project Solution — Automated Species Classification Pipeline")
 
 tab1, tab2 = st.tabs(["📸 AI Wildlife Classifier", "📊 Field Analytics Dashboard"])
