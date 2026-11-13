@@ -73,7 +73,7 @@ with tab1:
                     drive_match = re.search(r"/d/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)", url_input)
                     if "://google.com" in url_input and drive_match:
                         file_id = drive_match.group(1) or drive_match.group(2)
-                        fetch_url = f"https://://google.com/uc?export=download&id={file_id}"
+                        fetch_url = f"https://://google.com/thumbnail?id={file_id}&sz=w1000"
                     else:
                         fetch_url = url_input
 
@@ -82,7 +82,6 @@ with tab1:
                     image = Image.open(io.BytesIO(response.content)).convert("RGB")
                 except Exception:
                     st.error("❌ Could not load image. Make sure the Google Drive link access is set to 'Anyone with the link'.")
-
         if image is not None:
             col1, col2 = st.columns(2)
             with col1:
