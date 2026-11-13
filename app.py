@@ -50,41 +50,41 @@ with tab1:
         st.error("❌ Move `keras_model.h5` and `labels.txt` out of `converted_keras` directly into your `EVS` folder!")
     else:
                 image = None
-        input_mode = st.radio(
-            "Choose input method:",
-            ["📁 Upload File", "📷 Live Camera", "🔗 Google Drive / Image URL"],
-            horizontal=True
-        )
+                input_mode = st.radio(
+                    "Choose input method:",
+                    ["📁 Upload File", "📷 Live Camera", "🔗 Google Drive / Image URL"],
+                    horizontal=True
+                )
 
-        if input_mode == "📁 Upload File":
-            uploaded_file = st.file_uploader("Camera Trap / Field Image Input", type=["jpg", "jpeg", "png", "webp"])
-            if uploaded_file:
-                image = Image.open(uploaded_file).convert("RGB")
+                if input_mode == "📁 Upload File":
+                    uploaded_file = st.file_uploader("Camera Trap / Field Image Input", type=["jpg", "jpeg", "png", "webp"])
+                    if uploaded_file:
+                        image = Image.open(uploaded_file).convert("RGB")
 
-        elif input_mode == "📷 Live Camera":
-            cam_file = st.camera_input("Snap a photo of a wildlife image or screen")
-            if cam_file:
-                image = Image.open(cam_file).convert("RGB")
+                elif input_mode == "📷 Live Camera":
+                    cam_file = st.camera_input("Snap a photo of a wildlife image or screen")
+                    if cam_file:
+                        image = Image.open(cam_file).convert("RGB")
 
-        else:
-            url_input = st.text_input("Paste Google Drive share link or direct image URL:")
-            if url_input:
-                try:
-                    drive_match = re.search(r"/d/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)", url_input)
-                    if "://google.com" in url_input and drive_match:
-                        file_id = drive_match.group(1) or drive_match.group(2)
-                        fetch_url = f"https://://google.com/uc?export=download&id={file_id}"
-                    else:
-                        fetch_url = url_input
+                else:
+                    url_input = st.text_input("Paste Google Drive share link or direct image URL:")
+                    if url_input:
+                        try:
+                            drive_match = re.search(r"/d/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)", url_input)
+                            if "://google.com" in url_input and drive_match:
+                                file_id = drive_match.group(1) or drive_match.group(2)
+                                fetch_url = f"https://://google.com/uc?export=download&id={file_id}"
+                            else:
+                                fetch_url = url_input
 
-                    response = requests.get(fetch_url, timeout=10)
-                    response.raise_for_status()
-                    image = Image.open(io.BytesIO(response.content)).convert("RGB")
-                except Exception:
-                    st.error("❌ Could not load image. Make sure the Google Drive link access is set to 'Anyone with the link'.")
+                            response = requests.get(fetch_url, timeout=10)
+                            response.raise_for_status()
+                            image = Image.open(io.BytesIO(response.content)).convert("RGB")
+                    except Exception:
+                        st.error("❌ Could not load image. Make sure the Google Drive link access is set to 'Anyone with the link'.")
 
-        if image is not None:
-            col1, col2 = st.columns(2)
+                if image is not None:
+                    col1, col2 = st.columns(2)
             
             with col1:
                 st.image(image, caption="Uploaded Frame", use_container_width=True)
