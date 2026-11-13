@@ -35,7 +35,7 @@ def get_historical_data():
 
 df_history = get_historical_data()
 
-st.title("🐾 2EcoVision: Biodiversity Monitor")
+st.title("🐾 EcoVision: Biodiversity Monitor")
 st.caption("EVS Project Solution — Automated Species Classification Pipeline")
 
 tab1, tab2 = st.tabs(["📸 AI Wildlife Classifier", "📊 Field Analytics Dashboard"])
@@ -52,7 +52,7 @@ with tab1:
         image = None
         input_mode = st.radio(
             "Choose input method:",
-            ["📁 Upload File", "📷 Live Camera", "🔗 Google Drive / Image URL"],
+            ["📁 Upload File", "📷 Live Camera", "🔗 Direct Image URL"],
             horizontal=True
         )
 
